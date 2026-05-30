@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#111827">
+<title>สะสมผลบวก</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    font-family:sans-serif;
+}
+
+body{
+    margin:0;
+    background:#111827;
+    color:white;
+    padding:20px;
+}
+
+.container{
+    max-width:500px;
+    margin:auto;
+}
+
+.total-box{
+    background:#1f2937;
+    border-radius:20px;
+    padding:25px;
+    margin-bottom:20px;
+    text-align:right;
+}
+
+.total-label{
+    color:#9ca3af;
+    font-size:14px;
+}
+
+.total{
+    font-size:48px;
+    font-weight:bold;
+    word-break:break-all;
+}
+
+.input-box{
+    display:flex;
+    gap:10px;
+    margin-bottom:15px;
+}
+
+input{
+    flex:1;
+    padding:15px;
+    font-size:24px;
+    border:none;
+    border-radius:14px;
+    background:#374151;
+    color:white;
+}
+
+button{
+    border:none;
+    border-radius:14px;
+    padding:15px 20px;
+    font-size:18px;
+    cursor:pointer;
+}
+
+.add-btn{
+    background:#16a34a;
+    color:white;
+}
+
+.clear-btn{
+    width:100%;
+    background:#dc2626;
+    color:white;
+    margin-bottom:20px;
+}
+
+.list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.item{
+    background:#1f2937;
+    border-radius:14px;
+    padding:14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.value{
+    font-size:22px;
+    font-weight:bold;
+}
+
+.delete-btn{
+    background:#ef4444;
+    color:white;
+    padding:8px 14px;
+}
+</style>
+</head>
+
+<body>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js");
+  });
+}
+</script>
+
+<div class="container">
+
+    <div class="total-box">
+        <div class="total-label">ผลรวม</div>
+        <div class="total" id="total">0</div>
+    </div>
+
+    <div class="input-box">
+        <input
+            type="number"
+            id="numberInput"
+            placeholder="กรอกตัวเลข"
+        >
+        <button class="add-btn" onclick="addNumber()">ยืนยัน</button>
+    </div>
+
+    <button class="clear-btn" onclick="clearAll()">
+        ล้างทั้งหมด
+    </button>
+
+    <div class="list" id="list"></div>
+
+</div>
+
+<script>
+
+let numbers = [];
+
+function updateUI(){
+
+    let total = numbers.reduce((sum,item)=>sum+item.value,0);
+
+    document.getElementById("total").textContent = total;
+
+    let list = document.getElementById("list");
+
+    list.innerHTML = "";
+
+    numbers.forEach(item=>{
+
+        list.innerHTML += `
+            <div class="item">
+                <div class="value">${item.value}</div>
+
+                <button
+                    class="delete-btn"
+                    onclick="deleteItem(${item.id})"
+                >
+                    ลบ
+                </button>
+            </div>
+        `;
+    });
+}
+
+function addNumber(){
+
+    let input = document.getElementById("numberInput");
+
+    let value = parseFloat(input.value);
+
+    if(isNaN(value)) return;
+
+    numbers.push({
+        id: Date.now(),
+        value: value
+    });
+
+    input.value = "";
+
+    updateUI();
+}
+
+function deleteItem(id){
+
+    numbers = numbers.filter(item=>item.id !== id);
+
+    updateUI();
+}
+
+function clearAll(){
+
+    if(confirm("ล้างข้อมูลทั้งหมด?")){
+
+        numbers = [];
+
+        updateUI();
+    }
+}
+
+document
+.getElementById("numberInput")
+.addEventListener("keydown",function(e){
+
+    if(e.key==="Enter"){
+        addNumber();
+    }
+});
+
+updateUI();
+
+</script>
+
+</body>
+</html>
